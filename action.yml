@@ -1,0 +1,31 @@
+name: 'Update Submodule'
+description: 'Update repository submodule'
+
+inputs:
+  path:
+    description: 'Submodule path'
+    required: true
+  token:
+    description: 'Submodule PAT'
+    required: false
+    default: ${{ github.token }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+      with:
+        token: ${{ inputs.token }}
+        submodules: true
+    - name: Update Submodule
+      run: git submodule update --remote ${{ inputs.path }}
+      shell: bash
+    - name: Commit and Push Update
+      run: |
+        git config user.email "actions@github.com"
+        git config user.name "GHAction - Update Submodule"
+        git add --all
+        git commit -m "Update submodule" || echo "No changes to commit"
+        git push
+      shell: bash
